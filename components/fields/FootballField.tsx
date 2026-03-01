@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { LineupPlayer } from "@/data/players";
+import PlayerInput from "@/components/PlayerInput";
 import { namesMatch } from "@/lib/gameUtils";
 
 // Offense positions (x,y) in 500×200 viewBox
@@ -95,12 +96,12 @@ function InputGrid({ positions, posMap, lineup, guesses, revealed, feat, onGuess
               <div className="px-1.5 py-1 rounded bg-red-900/20 border border-red-800 text-red-400 text-xs truncate">{lp.player}</div>
             ) : (
               <div className="flex gap-0.5">
-                <input
-                  className="flex-1 min-w-0 px-1.5 py-1 bg-brand-dark border border-brand-border rounded text-white text-xs outline-none focus:ring-1 focus:ring-brand-accent/60"
-                  placeholder="Name…"
+                <PlayerInput
                   value={guesses[pos] ?? ""}
-                  onChange={(e) => onGuess(pos, e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && onGuess(pos, (e.target as HTMLInputElement).value)}
+                  onChange={(val) => onGuess(pos, val)}
+                  onCommit={(val) => onGuess(pos, val)}
+                  placeholder="Name…"
+                  inputClassName="flex-1 min-w-0 w-full px-1.5 py-1 bg-brand-dark border border-brand-border rounded text-white text-xs outline-none focus:ring-1 focus:ring-brand-accent/60"
                 />
                 <button onClick={() => onReveal(pos)} className="px-1 text-xs border border-brand-border text-gray-500 rounded hover:text-red-400" title="-50">👁</button>
               </div>

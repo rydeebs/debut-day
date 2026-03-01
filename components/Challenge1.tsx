@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { PlayerData } from "@/data/players";
 import { namesMatch, POINTS } from "@/lib/gameUtils";
+import { PLAYER_POOL } from "@/lib/playerPool";
 
 interface Props {
   player: PlayerData;
@@ -16,14 +17,18 @@ export default function Challenge1({ player, onComplete }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [flash, setFlash] = useState<"correct" | "wrong" | null>(null);
 
-  const primaryPred = player.predecessors.find((p) => p.primary);
-  const secondaryPreds = player.predecessors.filter((p) => !p.primary);
   const allFound = player.predecessors.every((p) =>
     guessed.some((g) => namesMatch(g, p.name)),
   );
 
-  function tryGuess() {
-    const trimmed = input.trim();
+  const suggestions = useMemo(() => {
+    if (!input || input.length < 2) return [];
+    const q = input.toLowerCase();
+    return PLAYER_POOL.filter((s) => s.name.toLowerCase().includes(q)).slice(0, 8);
+  }, [input]);
+
+  function tryGuess(nameOverride?: string) {
+    const trimmed = (nameOverride ?? input).trim();
     if (!trimmed) return;
 
     const match = player.predecessors.find(
@@ -59,12 +64,12 @@ export default function Challenge1({ player, onComplete }: Props) {
   const alreadyGuessed = (name: string) => guessed.some((g) => namesMatch(g, name));
 
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       <div className="bg-brand-card border border-brand-border rounded-xl p-5">
-        <h2 className="text-brand-accent font-bold text-lg mb-1">
+        <h2 className="font-heading font-bold text-xl text-brand-accent mb-1 tracking-wide uppercase">
           Challenge 1 · Who Did They Replace?
         </h2>
-        <p className="text-gray-400 text-sm">
+        <p className="text-gray-400 text-sm leading-relaxed">
           Before <span className="text-white font-semibold">{player.player}</span> took over the{" "}
           <span className="text-white font-semibold">{player.position}</span> spot for the{" "}
           <span className="text-white font-semibold">{player.team}</span>, who held the position?
@@ -87,39 +92,67 @@ export default function Challenge1({ player, onComplete }: Props) {
           >
             {pred.primary && <span className="text-yellow-400">★</span>}
             {alreadyGuessed(pred.name) || revealed ? pred.name : "???"}
-            {pred.primary && (
-              <span className="text-xs text-gray-500 ml-1">(+{POINTS.predecessorPrimary})</span>
-            )}
-            {!pred.primary && (
-              <span className="text-xs text-gray-500 ml-1">(+{POINTS.predecessorSecondary})</span>
-            )}
+            <span className="text-xs text-gray-500 ml-0.5">
+              (+{pred.primary ? POINTS.predecessorPrimary : POINTS.predecessorSecondary})
+            </span>
           </div>
         ))}
       </div>
 
       {!submitted && (
-        <div className="flex gap-2">
-          <input
-            className={`flex-1 bg-brand-dark border rounded-lg px-4 py-2 text-white placeholder-gray-600 outline-none focus:ring-2 transition-all ${
-              flash === "correct"
-                ? "border-green-500 ring-2 ring-green-500/40"
-                : flash === "wrong"
-                ? "border-red-500 ring-2 ring-red-500/40"
-                : "border-brand-border focus:ring-brand-accent/50"
-            }`}
-            placeholder="Type a player's name…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && tryGuess()}
-            disabled={revealed || allFound}
-          />
-          <button
-            onClick={tryGuess}
-            disabled={revealed || allFound || !input.trim()}
-            className="px-4 py-2 bg-brand-accent text-white rounded-lg font-semibold hover:bg-orange-600 disabled:opacity-40 transition"
-          >
-            Guess
-          </button>
+        <div className="flex gap-3 items-start">
+          {/* Input area */}
+          <div className="flex-1 min-w-0">
+            <div className="flex gap-2">
+              <input
+                className={`flex-1 min-w-0 bg-brand-dark border rounded-lg px-4 py-2.5 text-white placeholder-gray-600 outline-none focus:ring-2 transition-all text-sm ${
+                  flash === "correct"
+                    ? "border-green-500 ring-2 ring-green-500/40"
+                    : flash === "wrong"
+                    ? "border-red-500 ring-2 ring-red-500/40"
+                    : "border-brand-border focus:ring-brand-accent/50"
+                }`}
+                placeholder="Type a player's name…"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && tryGuess()}
+                disabled={revealed || allFound}
+                autoComplete="off"
+              />
+              <button
+                onClick={() => tryGuess()}
+                disabled={revealed || allFound || !input.trim()}
+                className="px-4 py-2.5 bg-brand-accent text-white rounded-lg font-semibold hover:bg-orange-600 disabled:opacity-40 transition text-sm whitespace-nowrap"
+              >
+                Guess
+              </button>
+            </div>
+          </div>
+
+          {/* Right-side suggestion panel */}
+          {suggestions.length > 0 && !revealed && !allFound && (
+            <div className="w-48 flex-shrink-0 bg-brand-card border border-brand-border rounded-xl overflow-hidden shadow-2xl">
+              <div className="px-3 py-2 border-b border-brand-border bg-brand-dark/60">
+                <span className="text-xs font-heading font-semibold text-gray-400 uppercase tracking-widest">
+                  Suggestions
+                </span>
+              </div>
+              <div className="divide-y divide-brand-border/40">
+                {suggestions.map((s) => (
+                  <button
+                    key={s.name}
+                    onClick={() => { setInput(s.name); tryGuess(s.name); }}
+                    className="w-full flex items-center justify-between px-3 py-2 hover:bg-white/5 text-left transition group"
+                  >
+                    <span className="text-white text-xs font-medium group-hover:text-brand-accent transition truncate">
+                      {s.name}
+                    </span>
+                    <span className="text-gray-500 text-xs ml-2 shrink-0 font-mono">{s.year}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

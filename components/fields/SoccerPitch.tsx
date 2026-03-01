@@ -1,6 +1,7 @@
 "use client";
 import { LineupPlayer } from "@/data/players";
 import { namesMatch } from "@/lib/gameUtils";
+import PlayerInput from "@/components/PlayerInput";
 
 // 4-4-2 layout, viewBox 0 0 360 480
 const POSITIONS: Record<string, [number, number]> = {
@@ -95,12 +96,12 @@ export default function SoccerPitch({ lineup, guesses, revealed, featuredPlayer,
                 <div className="px-2 py-1.5 rounded bg-red-900/20 border border-red-800 text-red-400 text-xs truncate">{lp.player}</div>
               ) : (
                 <div className="flex gap-1">
-                  <input
-                    className="flex-1 min-w-0 px-2 py-1 bg-brand-dark border border-brand-border rounded text-white text-xs outline-none focus:ring-1 focus:ring-brand-accent/60"
-                    placeholder="Name…"
+                  <PlayerInput
                     value={guesses[lp.position] ?? ""}
-                    onChange={(e) => onGuess(lp.position, e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && onGuess(lp.position, (e.target as HTMLInputElement).value)}
+                    onChange={(val) => onGuess(lp.position, val)}
+                    onCommit={(val) => onGuess(lp.position, val)}
+                    placeholder="Name…"
+                    inputClassName="flex-1 min-w-0 w-full px-2 py-1 bg-brand-dark border border-brand-border rounded text-white text-xs outline-none focus:ring-1 focus:ring-brand-accent/60"
                   />
                   <button onClick={() => onReveal(lp.position)} className="px-1.5 py-1 text-xs border border-brand-border text-gray-500 rounded hover:text-red-400 hover:border-red-700 transition" title="-50">👁</button>
                 </div>

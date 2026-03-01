@@ -1,5 +1,19 @@
 import type { Metadata } from "next";
+import { Barlow_Condensed, Inter } from "next/font/google";
 import "./globals.css";
+
+const barlowCondensed = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "900"],
+  variable: "--font-heading",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Debut Day — Sports Debut Trivia",
@@ -19,7 +33,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="bg-[#0d1117] text-white antialiased">{children}</body>
+      <body
+        className={`${barlowCondensed.variable} ${inter.variable} bg-[#0d1117] text-white antialiased font-sans`}
+      >
+        {children}
+      </body>
     </html>
   );
 }

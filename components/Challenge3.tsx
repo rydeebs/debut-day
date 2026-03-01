@@ -29,7 +29,7 @@ export default function Challenge3({ player, onComplete }: Props) {
   return (
     <div className="space-y-5 animate-fade-in">
       <div className="bg-brand-card border border-brand-border rounded-xl p-5">
-        <h2 className="text-brand-accent font-bold text-lg mb-1">
+        <h2 className="font-heading font-bold text-xl text-brand-accent mb-1 tracking-wide uppercase">
           Challenge 3 · What Number Did They Wear?
         </h2>
         <p className="text-gray-400 text-sm">

@@ -23,6 +23,22 @@ const SPORTS: { key: Sport; label: string; icon: string }[] = [
   { key: "soccer",     label: "Soccer",     icon: "⚽" },
 ];
 
+const TEAM_LOGOS: Record<string, string> = {
+  "Philadelphia Phillies":  "https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
+  "New York Yankees":       "https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
+  "St. Louis Cardinals":    "https://a.espncdn.com/i/teamlogos/mlb/500/stl.png",
+  "Cleveland Cavaliers":    "https://a.espncdn.com/i/teamlogos/nba/500/cle.png",
+  "Los Angeles Lakers":     "https://a.espncdn.com/i/teamlogos/nba/500/lal.png",
+  "Seattle SuperSonics":    "https://a.espncdn.com/i/teamlogos/nba/500/sea.png",
+  "Kansas City Chiefs":     "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png",
+  "New England Patriots":   "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png",
+  "Green Bay Packers":      "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png",
+  "Pittsburgh Penguins":    "https://a.espncdn.com/i/teamlogos/nhl/500/pit.png",
+  "Washington Capitals":    "https://a.espncdn.com/i/teamlogos/nhl/500/wsh.png",
+  "San Jose Earthquakes":   "https://a.espncdn.com/i/teamlogos/soccer/500/193.png",
+  "New England Revolution": "https://a.espncdn.com/i/teamlogos/soccer/500/210.png",
+};
+
 type GameMode = "daily" | "browse";
 type ChallengeStep = 1 | 2 | 3 | "done";
 
@@ -44,7 +60,6 @@ export default function Game() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [confetti, setConfetti] = useState(false);
 
-  // Load player when sport/mode changes
   useEffect(() => {
     const p = mode === "daily"
       ? getDailyPlayer(sport)
@@ -70,7 +85,6 @@ export default function Game() {
     setStep("done");
 
     const total = finalSession.c1Score + finalSession.c2Score + score + POINTS.completionBonus;
-
     saveHighScore(sport, total);
     if (mode === "daily") {
       saveDailyRecord({
@@ -118,19 +132,21 @@ export default function Game() {
       <header className="border-b border-brand-border bg-brand-card sticky top-0 z-40">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-black text-brand-accent tracking-tight">🏟️ Debut Day</h1>
-            <p className="text-xs text-gray-500">Sports Debut Trivia</p>
+            <h1 className="font-heading font-black text-2xl text-brand-accent tracking-widest uppercase leading-none">
+              Debut Day
+            </h1>
+            <p className="text-xs text-gray-500 tracking-wide mt-0.5">Sports Debut Trivia</p>
           </div>
           <div className="flex items-center gap-3">
             {step !== 1 && (
               <div className="text-right">
-                <div className="text-xs text-gray-500">Score</div>
-                <div className="text-lg font-black text-brand-accent">{totalScore}</div>
+                <div className="text-xs text-gray-500 uppercase tracking-wider font-heading">Score</div>
+                <div className="text-xl font-heading font-black text-brand-accent leading-none">{totalScore}</div>
               </div>
             )}
             <button
               onClick={() => setShowLeaderboard((v) => !v)}
-              className="text-gray-400 hover:text-white text-sm px-3 py-1.5 border border-brand-border rounded-lg transition"
+              className="text-gray-400 hover:text-white text-sm px-3 py-1.5 border border-brand-border rounded-lg transition hover:border-gray-500"
             >
               🏆
             </button>
@@ -138,7 +154,7 @@ export default function Game() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-2xl mx-auto px-4 py-6 space-y-5">
         {/* Leaderboard */}
         {showLeaderboard && <Leaderboard />}
 
@@ -148,10 +164,10 @@ export default function Game() {
             <button
               key={key}
               onClick={() => setSport(key)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition flex-shrink-0 ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-heading font-bold tracking-wide whitespace-nowrap transition flex-shrink-0 uppercase ${
                 sport === key
-                  ? "bg-brand-accent text-white"
-                  : "bg-brand-card border border-brand-border text-gray-400 hover:text-white"
+                  ? "bg-brand-accent text-white shadow-lg shadow-orange-500/20"
+                  : "bg-brand-card border border-brand-border text-gray-400 hover:text-white hover:border-gray-500"
               }`}
             >
               {icon} {label}
@@ -160,18 +176,18 @@ export default function Game() {
         </div>
 
         {/* Mode toggle */}
-        <div className="flex gap-2">
+        <div className="flex gap-1 p-1 bg-brand-card border border-brand-border rounded-xl">
           {(["daily", "browse"] as GameMode[]).map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`px-4 py-1.5 rounded-lg text-sm capitalize font-medium transition ${
+              className={`flex-1 px-4 py-2 rounded-lg text-sm font-heading font-bold tracking-wide uppercase transition ${
                 mode === m
-                  ? "bg-white/10 text-white border border-white/20"
+                  ? "bg-white/10 text-white border border-white/15 shadow-sm"
                   : "text-gray-500 hover:text-gray-300"
               }`}
             >
-              {m === "daily" ? "📅 Daily Puzzle" : "📚 Browse Players"}
+              {m === "daily" ? "📅 Daily" : "📚 Browse"}
             </button>
           ))}
         </div>
@@ -187,10 +203,10 @@ export default function Game() {
                   setStep(1);
                   setSession({ c1Score: 0, c2Score: 0, c3Score: 0, c2CorrectMap: {} });
                 }}
-                className={`px-3 py-1.5 rounded-lg text-sm border transition ${
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
                   player?.id === p.id
                     ? "bg-brand-accent border-brand-accent text-white"
-                    : "bg-brand-dark border-brand-border text-gray-400 hover:text-white"
+                    : "bg-brand-dark border-brand-border text-gray-400 hover:text-white hover:border-gray-500"
                 }`}
               >
                 {p.player}
@@ -202,16 +218,37 @@ export default function Game() {
         {player && (
           <>
             {/* Player card */}
-            <div className="bg-brand-card border border-brand-border rounded-xl p-5">
+            <div className="bg-brand-card border border-brand-border rounded-xl p-5 shadow-lg">
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-black text-white">{player.player}</h2>
-                  <p className="text-gray-400 text-sm mt-0.5">
-                    {player.team} · {player.position} · Debut: {formatDate(player.debutDate)}
+                <div className="min-w-0">
+                  <h2 className="font-heading font-black text-3xl text-white tracking-wide leading-tight">
+                    {player.player}
+                  </h2>
+                  <p className="text-gray-400 text-sm mt-1">
+                    <span className="text-gray-300 font-medium">{player.team}</span>
+                    <span className="mx-1.5 text-gray-600">·</span>
+                    {player.position}
+                    <span className="mx-1.5 text-gray-600">·</span>
+                    Debut: {formatDate(player.debutDate)}
                   </p>
                 </div>
-                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-brand-dark border border-brand-border flex items-center justify-center">
-                  <span className="text-2xl font-black text-gray-600">?</span>
+                {/* Team logo */}
+                <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-brand-dark border border-brand-border flex items-center justify-center overflow-hidden p-1.5">
+                  {TEAM_LOGOS[player.team] ? (
+                    <img
+                      src={TEAM_LOGOS[player.team]}
+                      alt={player.team}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        const el = (e.target as HTMLImageElement).parentElement;
+                        if (el) el.innerHTML = `<span style="font-size:1.1rem;font-weight:900;color:#4b5563">${player.team.slice(0,2).toUpperCase()}</span>`;
+                      }}
+                    />
+                  ) : (
+                    <span className="font-heading font-black text-xl text-gray-600">
+                      {player.team.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -220,7 +257,7 @@ export default function Game() {
                 {[1, 2, 3].map((n) => (
                   <div
                     key={n}
-                    className={`flex-1 h-1.5 rounded-full transition-all ${
+                    className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${
                       step === "done" || (typeof step === "number" && step > n)
                         ? "bg-green-500"
                         : step === n
@@ -230,9 +267,11 @@ export default function Game() {
                   />
                 ))}
               </div>
-              <div className="flex gap-2 mt-1">
+              <div className="flex gap-2 mt-1.5">
                 {["Predecessor", "Lineup", "Jersey #"].map((label, i) => (
-                  <div key={i} className="flex-1 text-center text-xs text-gray-600">{label}</div>
+                  <div key={i} className="flex-1 text-center text-xs text-gray-600 font-heading tracking-wide uppercase">
+                    {label}
+                  </div>
                 ))}
               </div>
             </div>
@@ -250,22 +289,22 @@ export default function Game() {
 
             {/* Final score */}
             {step === "done" && (
-              <div className="bg-brand-card border border-brand-accent/50 rounded-xl p-6 text-center animate-slide-up">
-                <div className="text-5xl font-black text-brand-accent mb-2">
+              <div className="bg-brand-card border border-brand-accent/40 rounded-xl p-6 text-center animate-slide-up shadow-xl shadow-orange-500/5">
+                <div className="font-heading font-black text-6xl text-brand-accent mb-1 tracking-wide">
                   {totalScore.toLocaleString()}
                 </div>
-                <div className="text-gray-400 text-sm mb-1">Total Points</div>
+                <div className="text-gray-400 text-sm uppercase tracking-widest font-heading mb-4">Total Points</div>
 
                 <div className="grid grid-cols-4 gap-2 my-4 text-xs">
                   {[
                     { label: "Predecessor", value: session.c1Score },
-                    { label: "Lineup", value: session.c2Score },
-                    { label: "Jersey #", value: session.c3Score },
-                    { label: "Completion", value: POINTS.completionBonus },
+                    { label: "Lineup",      value: session.c2Score },
+                    { label: "Jersey #",    value: session.c3Score },
+                    { label: "Completion",  value: POINTS.completionBonus },
                   ].map(({ label, value }) => (
-                    <div key={label} className="bg-brand-dark rounded-lg p-2">
-                      <div className="text-gray-500">{label}</div>
-                      <div className="font-bold text-white">{value}</div>
+                    <div key={label} className="bg-brand-dark rounded-lg p-2.5 border border-brand-border">
+                      <div className="text-gray-500 text-xs uppercase tracking-wide font-heading">{label}</div>
+                      <div className="font-heading font-bold text-lg text-white mt-0.5">{value}</div>
                     </div>
                   ))}
                 </div>
@@ -278,7 +317,7 @@ export default function Game() {
                       setStep(1);
                       setSession({ c1Score: 0, c2Score: 0, c3Score: 0, c2CorrectMap: {} });
                     }}
-                    className="px-4 py-2 border border-brand-border text-gray-400 hover:text-white rounded-lg text-sm transition"
+                    className="px-4 py-2 border border-brand-border text-gray-400 hover:text-white hover:border-gray-500 rounded-lg text-sm transition font-medium"
                   >
                     Try Another Player
                   </button>
